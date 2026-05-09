@@ -12,6 +12,7 @@ async function registerStorageAccessScript(url) {
       matches: [`${protocol}//${hostname}/*`],
       js: [{ file: "content.js" }],
       runAt: "document_start",
+      allFrames: true,
     });
   } catch (e) {}
 }
