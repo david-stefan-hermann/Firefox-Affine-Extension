@@ -7,8 +7,11 @@
 </head>
 <body>
   <div id="no-url">
-    <p>No AFFiNE URL configured.</p>
-    <p>Click the toolbar button to set your URL.</p>
+    <p>Keine AFFiNE-URL konfiguriert.</p>
+    <div class="url-form">
+      <input type="url" id="inline-url" value="https://" spellcheck="false">
+      <button id="inline-save">Speichern</button>
+    </div>
   </div>
   <iframe id="affine-frame" allowfullscreen></iframe>
   <script src="sidebar.js"></script>

@@ -2,16 +2,6 @@
 
 A Firefox extension that embeds your self-hosted [AFFiNE](https://affine.pro) instance as a persistent sidebar panel.
 
-## Configuration
-
-Open `config.js` and replace the placeholder with your AFFiNE URL:
-
-```js
-const AFFINE_URL = "https://your-affine-instance.example.com";
-```
-
-This is the only place you need to change.
-
 ## Loading in Firefox (temporary add-on)
 
 1. Open Firefox and navigate to `about:debugging`
@@ -23,8 +13,10 @@ The extension loads until Firefox is restarted. To persist it, the extension wou
 
 ## Usage
 
-- Click the **AFFiNE toolbar button** to toggle the sidebar open or closed.
-- The sidebar opens AFFiNE in a full-height iframe with no extra chrome.
+- Click the **AFFiNE toolbar button** to open the popup.
+- Enter your AFFiNE instance URL and click **Save**.
+- Use **Toggle Sidebar** to open or close the sidebar panel.
+- The URL can be changed at any time via the popup — the sidebar updates instantly.
 
 ## Troubleshooting
 
