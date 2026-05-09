@@ -9,7 +9,36 @@ A Firefox extension that embeds your self-hosted [AFFiNE](https://affine.pro) in
 3. Click **Load Temporary Add-on…**
 4. Navigate to this folder and select `manifest.json`
 
-The extension loads until Firefox is restarted. To persist it, the extension would need to be signed by Mozilla.
+The extension loads until Firefox is restarted. For a permanent installation see the section below.
+
+## Permanent installation
+
+Temporary add-ons are removed on every Firefox restart. There are two ways to install the extension permanently.
+
+### Option A — Self-distribution signing via AMO (regular Firefox)
+
+Mozilla requires all extensions in regular Firefox to be signed. You can sign this extension for private use without publishing it publicly.
+
+1. Create a free account at [addons.mozilla.org](https://addons.mozilla.org)
+2. Go to **Developer Hub → Submit a New Add-on**
+3. Choose **On your own** (self-distribution, not listed on AMO)
+4. Zip the extension folder contents (not the folder itself) and upload the `.zip`
+5. Fill in the required metadata and submit
+6. Mozilla will review and sign it automatically (usually within minutes for simple extensions)
+7. Download the signed `.xpi` file
+8. In Firefox, open the `.xpi` file or drag it onto the browser — Firefox will install it permanently
+
+### Option B — Firefox Developer Edition (no signing required)
+
+Firefox Developer Edition allows installing unsigned extensions permanently.
+
+1. Download [Firefox Developer Edition](https://www.mozilla.org/en-US/firefox/developer/)
+2. Open `about:config` and set `xpinstall.signatures.required` to `false`
+3. Load the extension via `about:debugging → Load Temporary Add-on…` — it will survive restarts
+
+> **Note:** This setting only works in Firefox Developer Edition and Firefox Nightly, not in regular Firefox.
+
+---
 
 ## Usage
 
@@ -17,6 +46,7 @@ The extension loads until Firefox is restarted. To persist it, the extension wou
 - Enter your AFFiNE instance URL and click **Save**.
 - Use **Toggle Sidebar** to open or close the sidebar panel.
 - The URL can be changed at any time via the popup — the sidebar updates instantly.
+- The sidebar remembers the last page you were on and reopens there.
 
 ## Troubleshooting
 
@@ -72,3 +102,17 @@ Issues encountered while building this extension, documented for reference.
 frame.src = "about:blank";
 setTimeout(() => { frame.src = url; }, 50);
 ```
+
+---
+
+### 4. Sidebar always reopened on the home screen instead of the last visited page
+
+**Problem:** Firefox unloads the sidebar page every time the sidebar is closed (by design, to conserve resources). This caused the AFFiNE iframe to reload from the base URL on every open, losing the user's position within the app.
+
+**Reason:** There is no API to prevent the sidebar from unloading. Additionally, the content script used to track the current URL was registered with `allFrames` defaulting to `false`, which means it only injected into top-level browser frames — not into iframes. Since the AFFiNE page is loaded inside an `<iframe>` in `sidebar.html`, the content script never ran there and no URL was ever saved.
+
+**Fix:**
+1. Set `allFrames: true` when registering the content script so it injects into the AFFiNE iframe.
+2. In `content.js`, poll `location.href` every second and send the current URL to the background script whenever it changes (covers SPA navigation via `history.pushState`).
+3. The background script stores it as `affineLastUrl` in `browser.storage.local`.
+4. On sidebar open, `sidebar.js` reads `affineLastUrl` and loads it instead of the base URL, provided it still belongs to the configured instance.
