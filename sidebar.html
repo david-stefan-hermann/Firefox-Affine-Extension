@@ -4,12 +4,13 @@
   <meta charset="UTF-8">
   <title>AFFiNE</title>
   <link rel="stylesheet" href="sidebar.css">
-  <script src="config.js"></script>
 </head>
 <body>
-  <iframe id="affine-frame" src="" allowfullscreen></iframe>
-  <script>
-    document.getElementById("affine-frame").src = AFFINE_URL;
-  </script>
+  <div id="no-url">
+    <p>No AFFiNE URL configured.</p>
+    <p>Click the toolbar button to set your URL.</p>
+  </div>
+  <iframe id="affine-frame" allowfullscreen></iframe>
+  <script src="sidebar.js"></script>
 </body>
 </html>
