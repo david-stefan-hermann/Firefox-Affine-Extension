@@ -23,6 +23,14 @@ browser.storage.local.get("affineUrl").then(({ affineUrl }) => {
 browser.storage.onChanged.addListener((changes) => {
   if (changes.affineUrl) {
     registerStorageAccessScript(changes.affineUrl.newValue);
+    // Clear the saved last URL when the base URL changes.
+    browser.storage.local.remove("affineLastUrl");
+  }
+});
+
+browser.runtime.onMessage.addListener((message) => {
+  if (message.type === "saveUrl") {
+    browser.storage.local.set({ affineLastUrl: message.url });
   }
 });
 

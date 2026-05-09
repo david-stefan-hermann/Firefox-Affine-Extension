@@ -17,8 +17,14 @@ function loadUrl(url) {
   }
 }
 
-browser.storage.local.get("affineUrl").then(({ affineUrl }) => {
-  loadUrl(affineUrl);
+// On open, restore the last visited AFFiNE page rather than always loading
+// the base URL. Falls back to the base URL if no last URL is saved or if the
+// saved URL doesn't belong to the configured instance.
+browser.storage.local.get(["affineUrl", "affineLastUrl"]).then(({ affineUrl, affineLastUrl }) => {
+  const restore = affineLastUrl && affineUrl && affineLastUrl.startsWith(affineUrl)
+    ? affineLastUrl
+    : affineUrl;
+  loadUrl(restore || null);
 });
 
 browser.storage.onChanged.addListener((changes) => {

@@ -9,3 +9,14 @@ if (document.hasStorageAccess) {
     }
   });
 }
+
+// Track the current URL (including SPA navigation) so the sidebar can restore
+// the last visited page when it is reopened after being closed.
+let lastSavedUrl = null;
+setInterval(() => {
+  const current = location.href;
+  if (current !== lastSavedUrl) {
+    lastSavedUrl = current;
+    browser.runtime.sendMessage({ type: "saveUrl", url: current }).catch(() => {});
+  }
+}, 1000);
