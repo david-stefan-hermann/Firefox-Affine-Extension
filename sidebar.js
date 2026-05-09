@@ -34,8 +34,11 @@ inlineSave.addEventListener("click", () => {
 });
 
 // Reload the iframe after OIDC auth windows close so the new session takes effect.
+// Navigate via about:blank first to guarantee Firefox treats it as a fresh load.
 browser.runtime.onMessage.addListener((message) => {
   if (message.type === "reloadSidebar" && currentUrl) {
-    frame.src = currentUrl;
+    const url = currentUrl;
+    frame.src = "about:blank";
+    setTimeout(() => { frame.src = url; }, 50);
   }
 });

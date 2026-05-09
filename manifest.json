@@ -35,5 +35,5 @@
     "persistent": false
   },
 
-  "permissions": ["storage", "windows"]
+  "permissions": ["storage"]
 }

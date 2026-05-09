@@ -1,7 +1,10 @@
-// When an auth popup (OIDC) closes, the sidebar iframe still holds the old
-// unauthenticated page. Reload it so the new session cookie takes effect.
+// When an OIDC auth popup closes the session cookie is now set, but the
+// sidebar iframe still holds the old unauthenticated page. Reload it.
 browser.windows.onRemoved.addListener(async () => {
   const { affineUrl } = await browser.storage.local.get("affineUrl");
   if (!affineUrl) return;
-  browser.runtime.sendMessage({ type: "reloadSidebar" }).catch(() => {});
+  // Small delay so the session cookie is fully written before we reload.
+  setTimeout(() => {
+    browser.runtime.sendMessage({ type: "reloadSidebar" }).catch(() => {});
+  }, 300);
 });
