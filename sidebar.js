@@ -3,7 +3,10 @@ const noUrl = document.getElementById("no-url");
 const inlineUrl = document.getElementById("inline-url");
 const inlineSave = document.getElementById("inline-save");
 
+let currentUrl = null;
+
 function loadUrl(url) {
+  currentUrl = url || null;
   if (url) {
     frame.src = url;
     frame.style.display = "block";
@@ -28,4 +31,11 @@ inlineSave.addEventListener("click", () => {
   const url = inlineUrl.value.trim();
   if (!url || url === "https://") return;
   browser.storage.local.set({ affineUrl: url });
+});
+
+// Reload the iframe after OIDC auth windows close so the new session takes effect.
+browser.runtime.onMessage.addListener((message) => {
+  if (message.type === "reloadSidebar" && currentUrl) {
+    frame.src = currentUrl;
+  }
 });
