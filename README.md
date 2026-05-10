@@ -22,7 +22,7 @@ Mozilla requires all extensions in regular Firefox to be signed. You can sign th
 1. Create a free account at [addons.mozilla.org](https://addons.mozilla.org)
 2. Go to **Developer Hub → Submit a New Add-on**
 3. Choose **On your own** (self-distribution, not listed on AMO)
-4. Zip the extension folder contents (not the folder itself) and upload the `.zip`
+4. Run `package.bat` to generate `affine-sidebar-extension.zip`, then upload it
 5. Fill in the required metadata and submit
 6. Mozilla will review and sign it automatically (usually within minutes for simple extensions)
 7. Download the signed `.xpi` file
@@ -105,7 +105,31 @@ setTimeout(() => { frame.src = url; }, 50);
 
 ---
 
-### 4. Sidebar always reopened on the home screen instead of the last visited page
+### 4. AMO upload rejected: invalid file name in archive (`icons\affine-512.png`)
+
+**Problem:** The zip produced by PowerShell's `Compress-Archive` was rejected by AMO with "Invalid file name in archive".
+
+**Reason:** `Compress-Archive` writes zip entry names using Windows backslashes (`icons\affine-512.png`). The ZIP specification requires forward slashes. AMO's linter enforces this.
+
+**Fix:** Use `System.IO.Compression.ZipFile` directly via a PowerShell script (`package.ps1`), which lets entry names be set explicitly with forward slashes (`icons/icon-96.png`).
+
+---
+
+### 5. AMO warnings: `strict_min_version` too low and icon sizes mismatched
+
+**Problem:** After uploading, AMO reported three categories of warnings:
+- `data_collection_permissions` requires Firefox 140 / Firefox for Android 142, but `strict_min_version` was set to `109`
+- Icons declared at sizes 16, 48, and 96 in the manifest were actually 64×64 and 512×512 pixels
+
+**Reason:** `data_collection_permissions` is a newer manifest key introduced in Firefox 140 (desktop) and 142 (Android). Using it with a lower `strict_min_version` creates an inconsistency. The icon mismatch was because the source PNG files (downloaded from AFFiNE's GitHub) were reused at multiple manifest size slots without actually being resized.
+
+**Fix:**
+- Set `gecko.strict_min_version` to `140.0` and add `gecko_android.strict_min_version: "142.0"`.
+- Generate correctly-sized icon files (`icon-16.png`, `icon-48.png`, `icon-96.png`) from the 512px source using `System.Drawing` bicubic resampling in PowerShell, and reference them by their actual sizes in the manifest.
+
+---
+
+### 6. Sidebar always reopened on the home screen instead of the last visited page
 
 **Problem:** Firefox unloads the sidebar page every time the sidebar is closed (by design, to conserve resources). This caused the AFFiNE iframe to reload from the base URL on every open, losing the user's position within the app.
 
