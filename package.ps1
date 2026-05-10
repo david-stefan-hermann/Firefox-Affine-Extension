@@ -26,10 +26,9 @@ foreach ($file in $rootFiles) {
     [System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile($zip, $fullPath, $file) | Out-Null
 }
 
-Get-ChildItem 'icons' -File | ForEach-Object {
-    # Use forward slash so the zip entry is valid on all platforms
-    $entryName = 'icons/' + $_.Name
-    [System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile($zip, $_.FullName, $entryName) | Out-Null
+@('icon-16.png', 'icon-48.png', 'icon-96.png') | ForEach-Object {
+    $fullPath = [System.IO.Path]::GetFullPath("icons\$_")
+    [System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile($zip, $fullPath, "icons/$_") | Out-Null
 }
 
 $zip.Dispose()
